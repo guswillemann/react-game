@@ -4,18 +4,20 @@ import Cell from './components/Cell';
 import { GRID_SIZE } from './constants';
 import logo from './logo.svg';
 import { CellGrid } from './types';
+import cloneDeep from './utils/cloneDeep';
 import createEmptyCellGrid from './utils/createEmptyCellGrid';
 
 const gridReducer = (state: CellGrid, action: any) => {
+  const newState = cloneDeep(state);
   const { x, y } = action.position;
  
   switch (action.type) {
     case 'addFruit':
-      state[y][x] = 'red';
-      return state;
+      newState[y][x] = 'red';
+      return newState;
     case 'removeFruit':
-      state[y][x] = undefined;
-      return state;
+      newState[y][x] = undefined;
+      return newState;
     default:
       throw new Error('missing gridDispatch action type');
   }
