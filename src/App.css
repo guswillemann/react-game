@@ -3,7 +3,7 @@
 }
 
 body {
-  --cell-dimension: 50px;
+  --cell-dimension: 25px;
   
   display: grid;
   place-content: center;

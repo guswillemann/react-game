@@ -2,36 +2,67 @@ import { useEffect, useReducer, useState } from 'react';
 import './App.css';
 import logo from './logo.svg';
 
+const GRID_SIZE = 20;
 const Cell = ({ color }) => <div style={{ backgroundColor: color || 'transparent' }} className='grid-cell'></div>
 
 const initialGrid = () => {
-  const grid = [
-    [],[],[],[],[],[],[],[],[],[],
-  ];
+  const grid = [];
 
-  grid.forEach((row, y) => {
-    for (let x = 0;x < 10;x++) {
-      row.push(<Cell key={`${x}${y}`} />);
+  for (let y = 0;y < GRID_SIZE;y++) {
+    grid.push([]);
+    for (let x = 0;x < GRID_SIZE;x++) {
+      grid[y].push([]);
     }
-  })
+  }
 
   return grid;
 };
 
-const greenifyReducer = (state, {x, y}) => {
-  const newState = [...state];
-  newState[y][x] = <Cell key={`${x}${y}`} color="green" />;
-  return newState;
+const gridReducer = (state, { type, position }) => {
+  const { x, y } = position;
+ 
+  switch (type) {
+    case 'addFruit':
+      state[y][x] = 'red';
+      return state;
+    case 'removeFruit':
+      state[y][x] = undefined;
+      return state;
+    default:
+      return new Error('missing gridDispatch action type');
+  }
 }
 
 function App() {
   const [xPos, setXPos] = useState(0);
   const [yPos, setYPos] = useState(0);
-  const [grid, greenifyCell] = useReducer(greenifyReducer, initialGrid());
+  const [grid, gridDispatch] = useReducer(gridReducer, initialGrid());
+  const [hasFruit, setHasFruit] = useState(false);
 
   useEffect(() => {
-    greenifyCell({ y: yPos, x: xPos });
-  }, [xPos, yPos, greenifyCell]);
+    if (hasFruit) return;
+
+    const x = Math.floor(Math.random() * GRID_SIZE);
+    const y = Math.floor(Math.random() * GRID_SIZE);
+
+    gridDispatch({
+      type: 'addFruit',
+      position: { x, y }
+    });
+
+    setHasFruit(true);
+  }, [hasFruit]);
+
+  useEffect(() => {
+    if (grid[yPos][xPos] === 'red') {
+      gridDispatch({
+        type: 'removeFruit',
+        position: { x: xPos, y: yPos }
+      });
+      setHasFruit(false);
+      console.log('score');
+    }
+  }, [xPos, yPos, grid]);
 
   useEffect(() => {
     const cb = (e) => {
@@ -46,7 +77,7 @@ function App() {
         // right
         39: () => {
           setXPos((state) => {
-            if (state === 9) return state;
+            if (state === GRID_SIZE - 1) return state;
             return state += 1
           });
         },
@@ -60,7 +91,7 @@ function App() {
         // down
         40: () => {
           setYPos((state) => {
-            if (state === 9) return state;
+            if (state === GRID_SIZE - 1) return state;
             return state += 1
           });
         },
@@ -78,9 +109,10 @@ function App() {
 
   return (
     <div className="App">
-      {grid.reduce((acc, cur) => {
-        return acc.concat(cur)
-      })}
+      {grid.reduce((acc, cur, y) => {
+        const rowEls = cur.map((cell, x) => <Cell key={`${x}-${y}`} color={cell} />)
+        return [...acc, ...rowEls]
+      }, [])}
       <img
         style={{
           '--x-pos': xPos,
