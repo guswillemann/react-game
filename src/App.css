@@ -31,9 +31,3 @@ body {
   top: calc(var(--y-pos) * var(--cell-dimension));
   left: calc(var(--x-pos) * var(--cell-dimension));
 }
-
-.grid-cell {
-  width: var(--cell-dimension);
-  height: var(--cell-dimension);
-  border: 1px solid darkred;
-}

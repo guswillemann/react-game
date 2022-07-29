@@ -1,0 +1,5 @@
+.cell {
+  width: var(--cell-dimension);
+  height: var(--cell-dimension);
+  border: 1px solid darkred;
+}

@@ -1,23 +1,10 @@
-import { ReactNode, useEffect, useReducer, useState } from 'react';
+import { CSSProperties, ReactNode, useEffect, useReducer, useState } from 'react';
 import './App.css';
+import Cell from './components/Cell';
+import { GRID_SIZE } from './constants';
 import logo from './logo.svg';
 import { CellGrid } from './types';
-
-const GRID_SIZE = 20;
-const Cell = ({ color = 'transparent' }: { color?: string }) => <div style={{ backgroundColor: color }} className='grid-cell'></div>
-
-const initialGrid = () => {
-  const grid: CellGrid = [];
-
-  for (let y = 0;y < GRID_SIZE;y++) {
-    grid.push([]);
-    for (let x = 0;x < GRID_SIZE;x++) {
-      grid[y].push('');
-    }
-  }
-
-  return grid;
-};
+import createEmptyCellGrid from './utils/createEmptyCellGrid';
 
 const gridReducer = (state: CellGrid, action: any) => {
   const { x, y } = action.position;
@@ -37,7 +24,7 @@ const gridReducer = (state: CellGrid, action: any) => {
 function App() {
   const [xPos, setXPos] = useState(0);
   const [yPos, setYPos] = useState(0);
-  const [grid, gridDispatch] = useReducer(gridReducer, initialGrid());
+  const [grid, gridDispatch] = useReducer(gridReducer, createEmptyCellGrid());
   const [hasFruit, setHasFruit] = useState(false);
 
   useEffect(() => {
@@ -114,7 +101,7 @@ function App() {
         style={{
           '--x-pos': xPos,
           '--y-pos': yPos,
-        } as any}
+        } as CSSProperties}
         width={100}
         height={100}
         src={logo}
