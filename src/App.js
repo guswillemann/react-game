@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import './App.css';
 import logo from './logo.svg';
 
@@ -9,8 +9,8 @@ const initialGrid = () => {
     [],[],[],[],[],[],[],[],[],[],
   ];
 
-  grid.forEach((row, x) => {
-    for (let y = 0;y < 10;y++) {
+  grid.forEach((row, y) => {
+    for (let x = 0;x < 10;x++) {
       row.push(<Cell key={`${x}${y}`} />);
     }
   })
@@ -18,16 +18,19 @@ const initialGrid = () => {
   return grid;
 };
 
+const greenifyReducer = (state, {x, y}) => {
+  const newState = [...state];
+  newState[y][x] = <Cell key={`${x}${y}`} color="green" />;
+  return newState;
+}
+
 function App() {
   const [xPos, setXPos] = useState(0);
   const [yPos, setYPos] = useState(0);
-  const grid = useRef(initialGrid());
-  const greenifyCell = useCallback((x, y) => {
-    grid.current[x][y] = <Cell key={`${x}${y}`} color="green" />
-  }, []);
+  const [grid, greenifyCell] = useReducer(greenifyReducer, initialGrid());
 
   useEffect(() => {
-    greenifyCell(yPos, xPos);
+    greenifyCell({ y: yPos, x: xPos });
   }, [xPos, yPos, greenifyCell]);
 
   useEffect(() => {
@@ -75,7 +78,7 @@ function App() {
 
   return (
     <div className="App">
-      {grid.current.reduce((acc, cur) => {
+      {grid.reduce((acc, cur) => {
         return acc.concat(cur)
       })}
       <img
