@@ -2,6 +2,7 @@ import { CSSProperties, ReactNode, useEffect, useReducer, useState } from 'react
 import './App.css';
 import Cell from './components/Cell';
 import { GRID_SIZE } from './constants';
+import useCounter from './hooks/useCounter';
 import logo from './logo.svg';
 import { CellGrid } from './types';
 import cloneDeep from './utils/cloneDeep';
@@ -28,6 +29,7 @@ function App() {
   const [yPos, setYPos] = useState(0);
   const [grid, gridDispatch] = useReducer(gridReducer, createEmptyCellGrid());
   const [hasFruit, setHasFruit] = useState(false);
+  const [score, scoreDispatch] = useCounter(0);
 
   useEffect(() => {
     if (hasFruit) return;
@@ -49,10 +51,10 @@ function App() {
         type: 'removeFruit',
         position: { x: xPos, y: yPos }
       });
+      scoreDispatch({ type: 'increment' });
       setHasFruit(false);
-      console.log('score');
     }
-  }, [xPos, yPos, grid]);
+  }, [xPos, yPos, grid, scoreDispatch]);
 
   useEffect(() => {
     const callback = (e: KeyboardEvent) => {
@@ -94,23 +96,27 @@ function App() {
   }, []);
 
   return (
-    <div className="App">
-      {grid.reduce((acc, cur, y) => {
-        const rowEls = cur.map((cell, x) => <Cell key={`${x}-${y}`} color={cell} />)
-        return [...acc, ...rowEls]
-      }, [] as ReactNode[])}
-      <img
-        style={{
-          '--x-pos': xPos,
-          '--y-pos': yPos,
-        } as CSSProperties}
-        width={100}
-        height={100}
-        src={logo}
-        className="App-logo"
-        alt="logo"
-      />
-    </div>
+    <>
+      <h1>React Snake</h1>
+      <span className='score'>Score: {score}</span>
+      <div className="App">
+        {grid.reduce((acc, cur, y) => {
+          const rowEls = cur.map((cell, x) => <Cell key={`${x}-${y}`} color={cell} />)
+          return [...acc, ...rowEls]
+        }, [] as ReactNode[])}
+        <img
+          style={{
+            '--x-pos': xPos,
+            '--y-pos': yPos,
+          } as CSSProperties}
+          width={100}
+          height={100}
+          src={logo}
+          className="App-logo"
+          alt="logo"
+        />
+      </div>
+    </>
   );
 }
 

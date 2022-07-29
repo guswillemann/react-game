@@ -1,3 +1,3 @@
-type Grid<t> = t[][];
+type Grid<T> = T[][];
 
 export type CellGrid = Grid<string | undefined>;
