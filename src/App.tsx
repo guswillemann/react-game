@@ -1,27 +1,28 @@
-import { useEffect, useReducer, useState } from 'react';
+import { ReactNode, useEffect, useReducer, useState } from 'react';
 import './App.css';
 import logo from './logo.svg';
+import { CellGrid } from './types';
 
 const GRID_SIZE = 20;
-const Cell = ({ color }) => <div style={{ backgroundColor: color || 'transparent' }} className='grid-cell'></div>
+const Cell = ({ color = 'transparent' }: { color?: string }) => <div style={{ backgroundColor: color }} className='grid-cell'></div>
 
 const initialGrid = () => {
-  const grid = [];
+  const grid: CellGrid = [];
 
   for (let y = 0;y < GRID_SIZE;y++) {
     grid.push([]);
     for (let x = 0;x < GRID_SIZE;x++) {
-      grid[y].push([]);
+      grid[y].push('');
     }
   }
 
   return grid;
 };
 
-const gridReducer = (state, { type, position }) => {
-  const { x, y } = position;
+const gridReducer = (state: CellGrid, action: any) => {
+  const { x, y } = action.position;
  
-  switch (type) {
+  switch (action.type) {
     case 'addFruit':
       state[y][x] = 'red';
       return state;
@@ -29,7 +30,7 @@ const gridReducer = (state, { type, position }) => {
       state[y][x] = undefined;
       return state;
     default:
-      return new Error('missing gridDispatch action type');
+      throw new Error('missing gridDispatch action type');
   }
 }
 
@@ -65,31 +66,27 @@ function App() {
   }, [xPos, yPos, grid]);
 
   useEffect(() => {
-    const cb = (e) => {
-      const keyMap = {
-        // left
-        37: () => {
+    const callback = (e: KeyboardEvent) => {
+      const keyMap: Record<KeyboardEvent['key'], () => void> = {
+        ArrowLeft: () => {
           setXPos((state) => {
             if (state === 0) return state;
             return state -= 1
           });
         },
-        // right
-        39: () => {
+        ArrowRight: () => {
           setXPos((state) => {
             if (state === GRID_SIZE - 1) return state;
             return state += 1
           });
         },
-        // up
-        38: () => {
+        ArrowUp: () => {
           setYPos((state) => {
             if (state === 0) return state;
             return state -= 1
           });
         },
-        // down
-        40: () => {
+        ArrowDown: () => {
           setYPos((state) => {
             if (state === GRID_SIZE - 1) return state;
             return state += 1
@@ -97,13 +94,13 @@ function App() {
         },
       };
 
-      keyMap[e.keyCode]?.();
+      keyMap[e.key]?.();
     }
 
-    document.addEventListener('keydown', cb);
+    document.addEventListener('keydown', callback);
 
     return () => {
-      document.removeEventListener('keydown', cb);
+      document.removeEventListener('keydown', callback);
     }
   }, []);
 
@@ -112,12 +109,12 @@ function App() {
       {grid.reduce((acc, cur, y) => {
         const rowEls = cur.map((cell, x) => <Cell key={`${x}-${y}`} color={cell} />)
         return [...acc, ...rowEls]
-      }, [])}
+      }, [] as ReactNode[])}
       <img
         style={{
           '--x-pos': xPos,
           '--y-pos': yPos,
-        }}
+        } as any}
         width={100}
         height={100}
         src={logo}
